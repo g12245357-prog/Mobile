@@ -3,6 +3,7 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import Login from './pages/login';
 import Cadastro from './pages/cadastro';
 import Splash from './pages/splash';
+import CEP from './pages/cep';
 
 export default function App(){
 
@@ -35,6 +36,11 @@ return(
     <Drawer.Screen
       name='Cadastro'
       component={Cadastro}
+    />
+
+    <Drawer.Screen
+      name='CEP'
+      component={CEP}
     />
    
   </Drawer.Navigator>

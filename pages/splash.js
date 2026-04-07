@@ -1,60 +1,36 @@
 import { useEffect } from "react";
-import { ImageBackground, Image ,StyleSheet} from "react-native";
+import { View, Image, StyleSheet } from "react-native";
 
+export default function Splash({ navigation }) {
 
+  useEffect(() => {
+    const time = setTimeout(() => {
+      navigation.navigate("Login");
+    }, 3000);
 
-export default function Splash({navigation}){
+    return () => clearTimeout(time);
+  }, []);
 
-    useEffect(()=>{
-
-    const time = setTimeout(()=>{
-
-        
-    navigation.navigate("Login");
-
-    },3000)
-
-
-    return ()=>clearTimeout(time);
-
-    },[])
-
-     return(
-
-
-
-        // <ImageBackground source={{uri:'../assets/moto.webp'}}>
-
-<ImageBackground source={require('../assets/moto.webp')}style={style.imgBack}>
-
-<Image source={require('../assets/PLG.png')}style={style.imglogo} /> 
-
-
-</ImageBackground>
-
-
-
-    )
-
-
-
+  return (
+    <View style={styles.container}>
+      <Image 
+        source={require('../assets/PLG.png')} 
+        style={styles.logo}
+      />
+    </View>
+  );
 }
 
-const style = StyleSheet.create({
-
-imgBack:{
-
-flex:1,
-justifyContent:"flex-end",
-alignItems:"center",
-
-},
-
-imglogo:{
-width:400,
-height:200,
-marginBottom:100
-
-}
-
-})
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#007bff',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logo: {
+    width: 150,
+    height: 150,
+    resizeMode: 'contain',
+  },
+});
