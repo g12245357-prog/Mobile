@@ -1,8 +1,9 @@
 import { View, TextInput, TouchableOpacity, Text, StyleSheet, ScrollView, Alert } from 'react-native';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function CEP({ navigation }) {
+export default function Cep({ navigation }) {
   const [cep, setCep] = useState("");
   const [endereco, setEndereco] = useState({
     logradouro: "",
@@ -11,9 +12,27 @@ export default function CEP({ navigation }) {
     uf: "",
   });
 
+  useEffect(() => {
+    async function validarToken() {
+      const token = await AsyncStorage.getItem("token");
+
+      if (!token) {
+        Alert.alert("ERRO", "Voce precisa fazer login");
+        navigation.replace("Login");
+      }
+    }
+
+    validarToken();
+  }, [navigation]);
+
   async function Buscar() {
     if (cep === "") {
       Alert.alert("ERRO", "Digite um CEP");
+      return;
+    }
+
+    if (cep.length !== 8) {
+      Alert.alert("ERRO", "Digite um CEP com 8 numeros");
       return;
     }
 
@@ -43,6 +62,11 @@ export default function CEP({ navigation }) {
       console.log("Erro BuscaCep:", error.response?.data || error.message);
       Alert.alert("ERRO", "Falha ao buscar CEP");
     }
+  }
+
+  async function Sair() {
+    await AsyncStorage.removeItem("token");
+    navigation.replace("Login");
   }
 
   return (
@@ -86,8 +110,8 @@ export default function CEP({ navigation }) {
           </View>
         </View>
 
-        <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-          <Text style={styles.link}>Voltar ao login</Text>
+        <TouchableOpacity onPress={Sair}>
+          <Text style={styles.link}>Sair</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -97,38 +121,48 @@ export default function CEP({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#f3e8ff",
     padding: 20,
   },
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: "#ffffff",
     padding: 25,
-    borderRadius: 10,
-    elevation: 3,
+    borderRadius: 15,
+    elevation: 5,
     marginTop: 50,
+    shadowColor: "#7c3aed",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
   },
   title: {
     fontSize: 28,
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 30,
-    color: "#333",
+    color: "#7c3aed",
   },
   input: {
     borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
+    borderColor: "#e9d5ff",
+    borderRadius: 10,
     padding: 12,
     marginBottom: 15,
     fontSize: 16,
-    backgroundColor: "#fff",
+    backgroundColor: "#faf5ff",
+    color: "#4c1d95",
   },
   button: {
-    backgroundColor: "#007bff",
+    backgroundColor: "#8b5cf6",
     padding: 15,
-    borderRadius: 8,
+    borderRadius: 10,
     alignItems: "center",
     marginBottom: 20,
+    shadowColor: "#7c3aed",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
   },
   buttonText: {
     color: "#fff",
@@ -139,7 +173,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     paddingTop: 20,
     borderTopWidth: 1,
-    borderTopColor: "#eee",
+    borderTopColor: "#e9d5ff",
   },
   resultItem: {
     flexDirection: "row",
@@ -149,17 +183,18 @@ const styles = StyleSheet.create({
     width: 70,
     fontSize: 14,
     fontWeight: "bold",
-    color: "#666",
+    color: "#7c3aed",
   },
   value: {
     flex: 1,
     fontSize: 14,
-    color: "#333",
+    color: "#4c1d95",
   },
   link: {
     textAlign: "center",
     marginTop: 20,
-    color: "#007bff",
+    color: "#8b5cf6",
     fontSize: 14,
+    fontWeight: "500",
   },
 });

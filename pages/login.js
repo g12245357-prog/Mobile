@@ -1,35 +1,72 @@
 import { View, TextInput, TouchableOpacity, Text, StyleSheet, Alert } from 'react-native';
 import { useState } from 'react';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Login({ navigation }) {
-
-  const [user, setUser] = useState("");
+  const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
 
-  function Logar() {
-    if (user === "" || pass === "") {
-      Alert.alert("ERRO", "Preencha todos os campos");
-    } else if (user === "william" && pass === "123") {
-      Alert.alert("Sucesso!", "Login realizado!");
-      navigation.navigate("CEP");
-    } else {
-      Alert.alert("ERRO!", "Usuário ou senha incorretos!");
+  function getToken(data) {
+    const token =
+      data?.token ||
+      data?.access_token ||
+      data?.accessToken ||
+      data?.data?.token ||
+      data?.data?.access_token;
+
+    return typeof token === "string" ? token.trim() : "";
+  }
+
+  async function Logar() {
+
+    if (email === "" || pass === "") {
+      Alert.alert("ERRO", "Favor Preencher todos os Campos!");
+      return;
+    }
+
+    try {
+      const response = await axios.post("http://10.0.2.2:8000/api/login_novo", {
+        email: email,
+        senha: pass,
+      });
+
+      console.log(response.data);
+
+      if (response.data.token) {
+
+        await AsyncStorage.setItem("token", response.data.token);
+
+        Alert.alert("Sucesso", "Login Realizado com Sucesso!");
+        navigation.navigate("Cep");
+      } else {
+
+        Alert.alert("ERRO", response.data?.msg || response.data?.message || "Token nao encontrado.");
+
+
+      }
+     } catch (error) {
+     
+      console.log("ERRO", error.response?.data || error.message || error);
+
     }
   }
-  
+
   return (
     <View style={styles.container}>
       <View style={styles.card}>
         <Text style={styles.title}>Login</Text>
-        
+
         <TextInput
           style={styles.input}
-          placeholder="Usuário"
+          placeholder="E-mail"
           placeholderTextColor="#999"
-          value={user}
-          onChangeText={setUser}
+          autoCapitalize="none"
+          keyboardType="email-address"
+          value={email}
+          onChangeText={setEmail}
         />
-        
+
         <TextInput
           style={styles.input}
           placeholder="Senha"
@@ -38,11 +75,11 @@ export default function Login({ navigation }) {
           value={pass}
           onChangeText={setPass}
         />
-        
+
         <TouchableOpacity style={styles.button} onPress={Logar}>
           <Text style={styles.buttonText}>ENTRAR</Text>
         </TouchableOpacity>
-        
+
         <TouchableOpacity onPress={() => navigation.navigate("Cadastro")}>
           <Text style={styles.link}>Criar conta</Text>
         </TouchableOpacity>

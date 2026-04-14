@@ -6,60 +6,45 @@ export default function Cadastro({ navigation }) {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const [dataNascimento, setDataNascimento] = useState("");
-  const [genero, setGenero] = useState("");
-  const [telefone, setTelefone] = useState("");
+  const [nasc, setNasc] = useState("");
+  const [gen, setGen] = useState("");
+  const [tel, setTel] = useState("");
 
   function formatApi(data) {
-    const partes = data.split("/");
-
-    if (partes.length !== 3) {
-      return "";
-    }
-
-    const [dia, mes, ano] = partes;
+    
+    const [dia, mes, ano] = data.split("/");
     return `${ano}-${mes}-${dia}`;
+
   }
-
-  async function Cadastrar() {
-    if (nome === "" || email === "" || senha === "" || genero === "" || dataNascimento === "" || telefone === "") {
-      Alert.alert("ERRO", "Preencha todos os campos");
-      return;
-    }
-
-    const nascimentoFormatado = formatApi(dataNascimento);
-
-    if (!nascimentoFormatado) {
-      Alert.alert("ERRO", "Informe a data no formato dd/mm/aaaa");
-      return;
-    }
-
+   
     const values = {
       nome: nome,
       email: email,
       senha: senha,
-      telefone: telefone,
-      nascimento: nascimentoFormatado,
-      genero: genero,
+      telefone: tel,
+      nascimento: formatApi(nasc),
+      genero: gen,
     };
 
+  async function Cadastrar() {
+   
+     if (nome === "" || email === "" || senha === "" || tel === "" || nasc === "" || gen === "") {
+
+      Alert.alert("ERRO", "Favor Preencher todos os Campos!");
+      
+    }
     try {
       const response = await axios.post("http://10.0.2.2:8000/api/cadastro_de_usuario", values);
-      console.log("Resposta Cadastro:", response.data);
+      console.log(response.data);
 
-      Alert.alert("Sucesso!", `${nome} foi cadastrado com sucesso!`);
-
+      Alert.alert("Sucesso!", "Cadastro Realizado com sucesso!");
       navigation.navigate("Login");
+
     } catch (error) {
-      const errorData = error.response?.data;
-      console.log("Erro Cadastro:", errorData || error.message);
-
-      const mensagemErro =
-        errorData?.message ||
-        (errorData?.errors ? JSON.stringify(errorData.errors) : "Falha ao cadastrar usuario");
-
-      Alert.alert("Erro ao cadastrar", mensagemErro);
+      console.log("ERRO", error.response.data.errors || error.response.data || error.message);
+    
     }
+
   }
 
   return (
@@ -99,16 +84,16 @@ export default function Cadastro({ navigation }) {
           style={styles.input}
           placeholder="Data de Nascimento (dd/mm/aaaa)"
           placeholderTextColor="#999"
-          value={dataNascimento}
-          onChangeText={setDataNascimento}
+          value={nasc}
+          onChangeText={setNasc}
         />
 
         <TextInput
           style={styles.input}
           placeholder="Genero"
           placeholderTextColor="#999"
-          value={genero}
-          onChangeText={setGenero}
+          value={gen}
+          onChangeText={setGen}
         />
 
         <TextInput
@@ -116,8 +101,8 @@ export default function Cadastro({ navigation }) {
           placeholder="Telefone"
           placeholderTextColor="#999"
           keyboardType="phone-pad"
-          value={telefone}
-          onChangeText={setTelefone}
+          value={tel}
+          onChangeText={setTel}
         />
 
         <TouchableOpacity style={styles.button} onPress={Cadastrar}>
@@ -135,38 +120,49 @@ export default function Cadastro({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#f3e8ff",
     padding: 20,
   },
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: "#ffffff",
     padding: 25,
-    borderRadius: 10,
-    elevation: 3,
+    borderRadius: 15,
+    elevation: 5,
     marginTop: 50,
+    shadowColor: "#7c3aed",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
   },
   title: {
     fontSize: 28,
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 30,
-    color: "#333",
+    color: "#7c3aed",
   },
   input: {
     borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
+    borderColor: "#e9d5ff",
+    borderRadius: 10,
     padding: 12,
     marginBottom: 15,
     fontSize: 16,
+    backgroundColor: "#faf5ff",
+    color: "#4c1d95",
   },
   button: {
-    backgroundColor: "#007bff",
+    backgroundColor: "#8b5cf6",
     padding: 15,
-    borderRadius: 8,
+    borderRadius: 10,
     alignItems: "center",
     marginTop: 10,
     marginBottom: 20,
+    shadowColor: "#7c3aed",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
   },
   buttonText: {
     color: "#fff",
@@ -175,7 +171,8 @@ const styles = StyleSheet.create({
   },
   link: {
     textAlign: "center",
-    color: "#007bff",
+    color: "#8b5cf6",
     fontSize: 14,
+    fontWeight: "500",
   },
 });
