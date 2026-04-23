@@ -38,7 +38,7 @@ export default function Login({ navigation }) {
         await AsyncStorage.setItem("token", response.data.token);
 
         Alert.alert("Sucesso", "Login Realizado com Sucesso!");
-        navigation.navigate("Cep");
+        navigation.navigate("CEP");
       } else {
 
         Alert.alert("ERRO", response.data?.msg || response.data?.message || "Token nao encontrado.");

@@ -3,24 +3,31 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { View, Image, StyleSheet } from "react-native";
 
 export default function Splash({ navigation }) {
+  
   useEffect(() => {
+
     const validacao = async () => {
+      
       const token = await AsyncStorage.getItem("token");
       console.log("Token encontrado:", token);
 
       if (token) {
-        navigation.replace("CEP");
+        navigation.navigate("CEP");
       } else {
-        navigation.replace("Login");
+        navigation.navigate("Login");
       }
     };
 
-    const time = setTimeout(() => {
-      validacao();
-    }, 3000);
+    const timer = setTimeout(()=>{
 
-    return () => clearTimeout(time);
-  }, [navigation]);
+validacao();
+
+    },3000);
+
+    return () => clearTimeout(timer);
+
+    
+  }, []);
 
   return (
     <View style={styles.container}>

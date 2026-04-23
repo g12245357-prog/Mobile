@@ -21,9 +21,8 @@ return(
       options={{
         headerTransparent: true,
         headerTitle: "",
-        drawerLabel: () => null,
-        drawerItemStyle: { display: 'none' },
-        swipeEnabled: false,
+        drawerItemStyle: { display: 'none' },  
+             
       }}
     />
    
