@@ -70,9 +70,19 @@ export default function Cep({ navigation }) {
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.card}>
-        <Text style={styles.title}>Buscar CEP</Text>
+        <View style={styles.glow} />
+        <View style={styles.hero}>
+          <Text style={styles.eyebrow}>LOCALIZADOR</Text>
+          <Text style={styles.brand}>MOTOGP</Text>
+          <Text style={styles.title}>Buscar CEP</Text>
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>BR</Text>
+          </View>
+        </View>
+
+        <Text style={styles.fieldLabel}>CEP *</Text>
 
         <TextInput
           style={styles.input}
@@ -90,22 +100,22 @@ export default function Cep({ navigation }) {
 
         <View style={styles.resultArea}>
           <View style={styles.resultItem}>
-            <Text style={styles.label}>Rua:</Text>
+            <Text style={styles.resultLabel}>Rua:</Text>
             <Text style={styles.value}>{endereco.logradouro || "---"}</Text>
           </View>
 
           <View style={styles.resultItem}>
-            <Text style={styles.label}>Bairro:</Text>
+            <Text style={styles.resultLabel}>Bairro:</Text>
             <Text style={styles.value}>{endereco.bairro || "---"}</Text>
           </View>
 
           <View style={styles.resultItem}>
-            <Text style={styles.label}>Cidade:</Text>
+            <Text style={styles.resultLabel}>Cidade:</Text>
             <Text style={styles.value}>{endereco.localidade || "---"}</Text>
           </View>
 
           <View style={styles.resultItem}>
-            <Text style={styles.label}>Estado:</Text>
+            <Text style={styles.resultLabel}>Estado:</Text>
             <Text style={styles.value}>{endereco.uf || "---"}</Text>
           </View>
         </View>
@@ -121,80 +131,156 @@ export default function Cep({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f3e8ff",
+    backgroundColor: "#0d0e16",
+  },
+  content: {
     padding: 20,
+    paddingBottom: 34,
   },
   card: {
-    backgroundColor: "#ffffff",
-    padding: 25,
-    borderRadius: 15,
-    elevation: 5,
-    marginTop: 50,
-    shadowColor: "#7c3aed",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    position: "relative",
+    overflow: "hidden",
+    backgroundColor: "#141520",
+    padding: 24,
+    borderRadius: 28,
+    elevation: 12,
+    marginTop: 34,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: "#2a1b28",
+    shadowColor: "#f23845",
+    shadowOffset: { width: 0, height: 18 },
+    shadowOpacity: 0.22,
+    shadowRadius: 26,
+  },
+  glow: {
+    position: "absolute",
+    right: -80,
+    top: 140,
+    width: 160,
+    height: 280,
+    borderRadius: 80,
+    backgroundColor: "rgba(242, 56, 69, 0.16)",
+  },
+  hero: {
+    backgroundColor: "#d92335",
+    borderRadius: 24,
+    paddingTop: 30,
+    paddingBottom: 32,
+    paddingHorizontal: 18,
+    margin: -24,
+    marginBottom: 30,
+    alignItems: "center",
+  },
+  eyebrow: {
+    color: "#ffd7dc",
+    fontSize: 12,
+    fontWeight: "900",
+    marginBottom: 10,
+  },
+  brand: {
+    color: "#ffffff",
+    fontSize: 36,
+    fontWeight: "900",
+    letterSpacing: 0,
+    marginBottom: 14,
   },
   title: {
-    fontSize: 28,
-    fontWeight: "bold",
+    fontSize: 23,
+    fontWeight: "800",
     textAlign: "center",
-    marginBottom: 30,
-    color: "#7c3aed",
+    color: "#ffffff",
+  },
+  badge: {
+    position: "absolute",
+    right: 22,
+    bottom: -34,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: "#181827",
+    borderWidth: 2,
+    borderColor: "#ff4051",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#ff4051",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.45,
+    shadowRadius: 14,
+    elevation: 8,
+  },
+  badgeText: {
+    color: "#ff4051",
+    fontSize: 22,
+    fontWeight: "900",
+  },
+  fieldLabel: {
+    color: "#f1f2f7",
+    fontSize: 15,
+    fontWeight: "800",
+    marginBottom: 8,
   },
   input: {
     borderWidth: 1,
-    borderColor: "#e9d5ff",
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 15,
+    borderColor: "#34343d",
+    borderLeftWidth: 4,
+    borderLeftColor: "#f23845",
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 18,
     fontSize: 16,
-    backgroundColor: "#faf5ff",
-    color: "#4c1d95",
+    backgroundColor: "#282828",
+    color: "#ffffff",
   },
   button: {
-    backgroundColor: "#8b5cf6",
-    padding: 15,
-    borderRadius: 10,
+    backgroundColor: "#f23845",
+    padding: 16,
+    borderRadius: 16,
     alignItems: "center",
     marginBottom: 20,
-    shadowColor: "#7c3aed",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowColor: "#f23845",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.35,
+    shadowRadius: 14,
+    elevation: 6,
   },
   buttonText: {
     color: "#fff",
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "800",
   },
   resultArea: {
     marginTop: 20,
-    paddingTop: 20,
-    borderTopWidth: 1,
-    borderTopColor: "#e9d5ff",
+    padding: 16,
+    borderRadius: 16,
+    backgroundColor: "#1c1d29",
+    borderWidth: 1,
+    borderColor: "#34343d",
+    borderLeftWidth: 4,
+    borderLeftColor: "#f23845",
   },
   resultItem: {
     flexDirection: "row",
-    marginBottom: 12,
+    marginBottom: 13,
+    alignItems: "flex-start",
   },
-  label: {
+  resultLabel: {
     width: 70,
     fontSize: 14,
-    fontWeight: "bold",
-    color: "#7c3aed",
+    fontWeight: "800",
+    color: "#ffffff",
   },
   value: {
     flex: 1,
     fontSize: 14,
-    color: "#4c1d95",
+    color: "#b8bac7",
+    lineHeight: 20,
   },
   link: {
     textAlign: "center",
-    marginTop: 20,
-    color: "#8b5cf6",
+    marginTop: 22,
+    color: "#ff5362",
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: "800",
   },
 });

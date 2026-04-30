@@ -4,6 +4,8 @@ import Login from './pages/login';
 import Cadastro from './pages/cadastro';
 import Splash from './pages/splash';
 import Cep from './pages/cep';
+import Home from './pages/Home';
+import Formulario from './pages/formulario';
 
 export default function App(){
 
@@ -40,6 +42,16 @@ return(
     <Drawer.Screen
       name='CEP'
       component={Cep}
+    />
+
+    <Drawer.Screen
+      name='Home'
+      component={Home}
+    />
+
+    <Drawer.Screen
+      name='Formulario'
+      component={Formulario}
     />
    
   </Drawer.Navigator>

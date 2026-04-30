@@ -1,0 +1,7 @@
+
+> marvel@1.0.0 web
+> expo start --web --port 8082 --non-interactive
+
+Starting project at C:\Users\49521838825\Downloads\Projeto_React\Projeto_React\marvel
+› Port 8082 is being used by another process
+› Skipping dev server

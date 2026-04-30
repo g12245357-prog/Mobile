@@ -1,0 +1,9 @@
+
+> marvel@1.0.0 start
+> expo start --port 8083
+
+Starting project at C:\Users\49521838825\Downloads\Projeto_React\Projeto_React\marvel
+Metro is running in CI mode, reloads are disabled. Remove CI=true to enable watch mode.
+Starting Metro Bundler
+Waiting on http://localhost:8083
+Logs for your project will appear below.
