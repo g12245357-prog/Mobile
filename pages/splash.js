@@ -42,7 +42,7 @@ export default function Splash({ navigation }) {
       console.log("Token encontrado:", token);
 
       if (token) {
-        navigation.navigate("CEP");
+        navigation.navigate("Cadastro");
       } else {
         navigation.navigate("Login");
       }
