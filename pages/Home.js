@@ -1,77 +1,113 @@
-import { useState, useEffect } from "react";
+import { useCallback, useState } from "react";
 import axios from "axios";
+import { Alert, FlatList, Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { View, Text, FlatList, Pressable, Modal, Alert, TouchableOpacity, StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
 
-export default function Lista() {
+const API = "http://10.0.2.2:8000/api";
 
+function pegarId(carro) {
+  return carro.id || carro.id_carro || carro.carro_id || carro.idCarro || carro.codigo || "";
+}
+
+function pegarListaCarros(data) {
+  return data.carro || data.carros || data.data || [];
+}
+
+export default function Home({ navigation }) {
   const [dados, setDados] = useState([]);
   const [modal, setModal] = useState(false);
   const [recebeDado, setRecebeDado] = useState(null);
 
-  useEffect(() => {
+  const Buscar = useCallback(async () => {
+    try {
+      const token = await AsyncStorage.getItem("token");
 
-    async function Buscar() {
+      const response = await axios.get(`${API}/todos_carros`, {
+        headers: token ? { Authorization: `Bearer ${token}`, token: token } : {},
+      });
 
-      try {
-
-        const token = await AsyncStorage.getItem("token");
-        console.log("Token armazenado:", token);
-
-        const response = await axios.get("http://10.0.2.2:8000/api/todos_carros", {
-          token:token
-        });
-
-        console.log(response.data.carro);
-        setDados(response.data.carro)
-
-
-      } catch (error) {
-
-        console.log("ERRO", error.response?.data || error.message);
-        Alert.alert("ERRO", "Nao foi possivel buscar os dados.");
-
-      }
-
+      const lista = pegarListaCarros(response.data);
+      setDados(Array.isArray(lista) ? lista : []);
+    } catch (error) {
+      console.log("ERRO BUSCAR MOTOS:", error.response?.data || error.message);
+      Alert.alert("ERRO", "Nao foi possivel buscar os dados.");
     }
-
-    Buscar();
-
   }, []);
 
+  useFocusEffect(
+    useCallback(() => {
+      Buscar();
+    }, [Buscar])
+  );
 
-  // function abrirAlerta(item) {
-  //   Alert.alert(
-  //     "Item selecionado",
-  //     `Nome: ${item.nome || item.modelo || item.marca || "---"}\nE-mail: ${item.email || "---"}`,
-  //     [
-  //       {
-  //         text: "Cancelar",
-  //         style: "cancel",
-  //       },
-  //       {
-  //         text: "Ver detalhes",
-  //         onPress: () => {
-  //           setRecebeDado(item);
-  //           setModal(true);
-  //         },
-  //       },
-  //     ]
-  //   );
-  // }
+  function abrirModal(item) {
+    setRecebeDado(item);
+    setModal(true);
+  }
+
+  function editarCarro() {
+    const id = pegarId(recebeDado);
+
+    if (!id) {
+      Alert.alert("ERRO", "Nao foi possivel identificar a moto para editar.");
+      return;
+    }
+
+    setModal(false);
+    navigation.navigate("EditarMoto", { id: id, item: recebeDado });
+  }
+
+  async function deletarCarro() {
+    const id = pegarId(recebeDado);
+
+    if (!id) {
+      Alert.alert("ERRO", "Nao foi possivel identificar a moto para deletar.");
+      return;
+    }
+
+    try {
+      const token = await AsyncStorage.getItem("token");
+
+      if (!token) {
+        Alert.alert("ERRO", "Token nao encontrado. Faca login novamente.");
+        navigation.replace("Login");
+        return;
+      }
+
+      const response = await axios.post(`${API}/deletar_carro`, {
+        id: id,
+        id_carro: id,
+        carro_id: id,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          token: token,
+        },
+      });
+
+      console.log("DELETAR Moto:", response.data);
+      Alert.alert("SUCESSO", "Moto deletada com sucesso!");
+      setModal(false);
+      Buscar();
+    } catch (error) {
+      console.log("ERRO DELETAR Moto:", error.response?.data || error.message);
+      Alert.alert("ERRO", "Nao foi possivel deletar a moto.");
+    }
+  }
 
   const renderItem = ({ item }) => (
-    <Pressable onPress={() => {setRecebeDado(item); setModal(!modal);}} style={({ pressed }) => [styles.cardButton, pressed && styles.cardPressed]}>
+    <Pressable onPress={() => abrirModal(item)} style={({ pressed }) => [styles.cardButton, pressed && styles.cardPressed]}>
       <View style={styles.card}>
         <View style={styles.cardBadge}>
-          <Text style={styles.cardBadgeText}>{(item.nome || item.modelo || item.marca || "C").charAt(0).toUpperCase()}</Text>
+          <Text style={styles.cardBadgeText}>{(item.modelo || item.nome || item.fabricante || "M").charAt(0).toUpperCase()}</Text>
         </View>
 
         <View style={styles.cardContent}>
           <View style={styles.cardTopline} />
-          <Text style={styles.cardTitle}>{item.nome || item.modelo || item.marca || "Sem nome"}</Text>
-          <Text style={styles.cardText}>{item.email || item.placa || item.cor || "Sem detalhe"}</Text>
+          <Text style={styles.cardTitle}>{item.modelo || item.nome || item.fabricante || "Sem modelo"}</Text>
+          <Text style={styles.cardText}>{item.placa || item.cor || "Sem detalhe"}</Text>
           <View style={styles.metaRow}>
             <Text style={styles.metaPill}>{item.ano || "Ano"}</Text>
             <Text style={styles.metaPill}>{item.valor || "Valor"}</Text>
@@ -86,48 +122,52 @@ export default function Lista() {
       <FlatList
         data={dados}
         renderItem={renderItem}
-        keyExtractor={(item) =>(item.id)}
+        keyExtractor={(item, index) => String(pegarId(item) || index)}
         contentContainerStyle={styles.list}
         ListHeaderComponent={
           <View style={styles.hero}>
             <Text style={styles.brand}>MOTOGP</Text>
             <Text style={styles.heroTitle}>Garagem</Text>
-            <Text style={styles.heroText}>{dados.length} carros cadastrados</Text>
+            <Text style={styles.heroText}>{dados.length} motos cadastradas</Text>
             <View style={styles.heroBadge}>
               <Text style={styles.heroBadgeText}>BOX</Text>
             </View>
           </View>
         }
       />
-      <Modal
-        visible={modal}
-        transparent={false}
-        animationType="slide"
-        onRequestClose={() => setModal(!modal)}
-      >
+
+      <Modal visible={modal} transparent={false} animationType="slide" onRequestClose={() => setModal(false)}>
         <View style={styles.modalContainer}>
           <View style={styles.modalBox}>
             <View style={styles.modalBadge}>
-              <Text style={styles.modalBadgeText}>{(recebeDado?.nome || recebeDado?.modelo || recebeDado?.marca || "C").charAt(0).toUpperCase()}</Text>
+              <Text style={styles.modalBadgeText}>{(recebeDado?.modelo || recebeDado?.nome || "M").charAt(0).toUpperCase()}</Text>
             </View>
 
-            <Text style={styles.modalTitle}>{recebeDado?.nome || recebeDado?.modelo || recebeDado?.marca}</Text>
-            <Text style={styles.modalText}>{recebeDado?.email || recebeDado?.placa || recebeDado?.cor}</Text>
+            <Text style={styles.modalTitle}>{recebeDado?.modelo || recebeDado?.nome || recebeDado?.fabricante || "Moto"}</Text>
+            <Text style={styles.modalText}>{recebeDado?.placa || recebeDado?.cor || "---"}</Text>
 
             <View style={styles.modalGrid}>
               <View style={styles.modalInfo}>
-                <Text style={styles.modalInfoLabel}>Ano</Text>
-                <Text style={styles.modalInfoValue}>{recebeDado?.ano || "---"}</Text>
+                <Text style={styles.modalInfoLabel}>ID</Text>
+                <Text style={styles.modalInfoValue}>{pegarId(recebeDado) || "---"}</Text>
               </View>
               <View style={styles.modalInfo}>
-                <Text style={styles.modalInfoLabel}>Cor</Text>
-                <Text style={styles.modalInfoValue}>{recebeDado?.cor || "---"}</Text>
+                <Text style={styles.modalInfoLabel}>Ano</Text>
+                <Text style={styles.modalInfoValue}>{recebeDado?.ano || "---"}</Text>
               </View>
               <View style={styles.modalInfo}>
                 <Text style={styles.modalInfoLabel}>Valor</Text>
                 <Text style={styles.modalInfoValue}>{recebeDado?.valor || "---"}</Text>
               </View>
             </View>
+
+            <TouchableOpacity style={styles.editButton} onPress={editarCarro}>
+              <Text style={styles.editButtonText}>Editar</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.deleteButton} onPress={deletarCarro}>
+              <Text style={styles.deleteButtonText}>Deletar</Text>
+            </TouchableOpacity>
 
             <TouchableOpacity style={styles.closeButton} onPress={() => setModal(false)}>
               <Text style={styles.closeButtonText}>Fechar</Text>
@@ -159,17 +199,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 1,
     borderColor: "#ff4051",
-    shadowColor: "#f23845",
-    shadowOffset: { width: 0, height: 18 },
-    shadowOpacity: 0.24,
-    shadowRadius: 24,
-    elevation: 10,
   },
   brand: {
     color: "#ffffff",
     fontSize: 36,
     fontWeight: "900",
-    letterSpacing: 0,
     marginBottom: 12,
   },
   heroTitle: {
@@ -195,11 +229,6 @@ const styles = StyleSheet.create({
     borderColor: "#ff4051",
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: "#ff4051",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.45,
-    shadowRadius: 14,
-    elevation: 8,
   },
   heroBadgeText: {
     color: "#ff4051",
@@ -214,7 +243,6 @@ const styles = StyleSheet.create({
     transform: [{ scale: 0.99 }],
   },
   card: {
-    overflow: "hidden",
     minHeight: 96,
     backgroundColor: "#141520",
     borderRadius: 18,
@@ -223,11 +251,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 1,
     borderColor: "#2a1b28",
-    elevation: 5,
-    shadowColor: "#f23845",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.14,
-    shadowRadius: 16,
   },
   cardBadge: {
     width: 50,
@@ -295,11 +318,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 1,
     borderColor: "#2a1b28",
-    elevation: 10,
-    shadowColor: "#f23845",
-    shadowOffset: { width: 0, height: 18 },
-    shadowOpacity: 0.22,
-    shadowRadius: 24,
   },
   modalBadge: {
     width: 68,
@@ -354,13 +372,43 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "800",
   },
-  closeButton: {
+  editButton: {
     width: "100%",
     height: 46,
     backgroundColor: "#f23845",
     borderRadius: 16,
     justifyContent: "center",
     alignItems: "center",
+  },
+  editButtonText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "800",
+  },
+  deleteButton: {
+    width: "100%",
+    height: 46,
+    backgroundColor: "#1c1d29",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#34343d",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 10,
+  },
+  deleteButtonText: {
+    color: "#ff5362",
+    fontSize: 16,
+    fontWeight: "800",
+  },
+  closeButton: {
+    width: "100%",
+    height: 46,
+    backgroundColor: "#282828",
+    borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 10,
   },
   closeButtonText: {
     color: "#ffffff",
